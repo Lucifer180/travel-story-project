@@ -16,4 +16,4 @@ try {
 
 }
 }
-export default uploadImage;
+export default uploadImage;  
