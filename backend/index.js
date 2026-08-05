@@ -12,6 +12,7 @@ app.use(cors({origin:"*"}));
 const upload=require("./multer");
 const fs=require("fs");
 const path=require("path");
+const crypto=require("crypto");
 mongoose.connect(config.connectionString)
     .then(() => {
         console.log("Connected to MongoDB");
@@ -303,6 +304,55 @@ app.get("/travel-stories/filter", authenticateToken, async (req, res) => {
     }
   });
   
+//sharing:generate a public link for a story
+app.post("/stories/:id/share",authenticateToken,async(req,res)=>{
+    const {id}=req.params;
+    const {userId}=req.user;
+    try{
+        const travelStory=await TravelStory.findOne({_id:id,userId:userId});
+        if(!travelStory){
+            return res.status(404).json({error:true,message:"Travel story not found"});
+        }
+        if(!travelStory.shareId){
+            travelStory.shareId=crypto.randomBytes(12).toString("hex");
+            await travelStory.save();
+        }
+        res.status(200).json({error:false,shareId:travelStory.shareId,message:"Story is now shareable"});
+    }
+    catch(err){
+        res.status(500).json({error:true,message:err.message});
+    }
+});
+app.delete("/stories/:id/share",authenticateToken,async(req,res)=>{
+    const {id}=req.params;
+    const {userId}=req.user;
+    try{
+        const travelStory=await TravelStory.findOne({_id:id,userId:userId});
+        if(!travelStory){
+            return res.status(404).json({error:true,message:"Travel story not found"});
+        }
+        travelStory.shareId=null;
+        await travelStory.save();
+        res.status(200).json({error:false,message:"Sharing disabled"});
+    }
+    catch(err){
+        res.status(500).json({error:true,message:err.message});
+    }
+});
+//public read-only view,no auth required
+app.get("/shared/:shareId",async(req,res)=>{
+    const {shareId}=req.params;
+    try{
+        const travelStory=await TravelStory.findOne({shareId}).select("-userId");
+        if(!travelStory){
+            return res.status(404).json({error:true,message:"This story is not shared or the link is invalid"});
+        }
+        res.status(200).json({story:travelStory});
+    }
+    catch(err){
+        res.status(500).json({error:true,message:err.message});
+    }
+});
 app.put("/update-profile",authenticateToken,async(req,res)=>{
     const {fullName}=req.body;
     const {userId}=req.user;

@@ -3,6 +3,7 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 import Login from './pages/Auth/Login'
 import Signup from './pages/Auth/SignUp'
 import Home from './pages/Home/Home'
+import SharedStory from './pages/SharedStory'
 const App = () => {
   return (
     <div>
@@ -13,6 +14,7 @@ const App = () => {
           <Route path='/dashboard' exact element={<Home/>}/>
           <Route path='/login' exact element={<Login/>}/>
           <Route path='/signup' exact element={<Signup/>}/>
+          <Route path='/shared/:shareId' element={<SharedStory/>}/>
         </Routes>
       </Router>
     </div>
