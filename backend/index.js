@@ -400,6 +400,15 @@ app.put("/change-password",authenticateToken,async(req,res)=>{
         res.status(500).json({error:true,message:err.message});
     }
 });
+//surface actionable Anthropic API failures (bad key, no credit, rate limit)
+//instead of a generic message that hides the real cause
+function describeAiError(err,fallback){
+    const upstream=err?.error?.error?.message;
+    if(err?.status===401)return "Invalid ANTHROPIC_API_KEY. Check the key in backend/.env";
+    if(err?.status===429)return "Anthropic API rate limit reached. Try again shortly.";
+    if(upstream)return upstream;
+    return fallback;
+}
 //AI:suggest new destinations based on the user's travel history
 app.get("/ai/travel-suggestions",authenticateToken,async(req,res)=>{
     if(!anthropic){
@@ -458,7 +467,7 @@ app.get("/ai/travel-suggestions",authenticateToken,async(req,res)=>{
     }
     catch(err){
         console.error("AI suggestion error:",err);
-        res.status(500).json({error:true,message:"Failed to generate suggestions"});
+        res.status(500).json({error:true,message:describeAiError(err,"Failed to generate suggestions")});
     }
 });
 //AI:polish/improve the writing of a story draft
@@ -485,12 +494,14 @@ app.post("/ai/polish-story",authenticateToken,async(req,res)=>{
     }
     catch(err){
         console.error("AI polish error:",err);
-        res.status(500).json({error:true,message:"Failed to polish story"});
+        res.status(500).json({error:true,message:describeAiError(err,"Failed to polish story")});
     }
 });
 app.use("/uploads",express.static(path.join(__dirname,"uploads")));
 app.use("/assets",express.static(path.join(__dirname,"assets")));
-app.listen(8000,()=>{
-    console.log("the port is working")
+//must match BASE_URL in frontend/src/utils/constants.js
+const PORT=process.env.PORT||8000;
+app.listen(PORT,()=>{
+    console.log(`Server listening on http://localhost:${PORT}`)
 });
 module.exports=app;
