@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { DayPicker } from 'react-day-picker';
+import { FaMapMarkedAlt } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,7 @@ import Footer from '../../components/Cards/Footer';
 import TravelStoryCard from '../../components/Cards/TravelStoryCard';
 import ViewTravelStory from '../../components/Cards/ViewTravelStory';
 import Navbar from '../../components/Navbar';
+import MapView from '../../components/MapView';
 import ProfileModal from '../../components/ProfileModal';
 import axiosInstance from '../../utils/axiosInstance';
 import { getEmptyCardImg, getEmptyCardMessage } from '../../utils/helper';
@@ -31,6 +33,7 @@ const Home = () => {
     data:null,
   });
   const [openProfileModal,setOpenProfileModal]=useState(false);
+  const [openMapModal,setOpenMapModal]=useState(false);
   const [searchQuery,setSearchQuery]=useState('');
   const getUserInfo = async () => {
     try {
@@ -302,6 +305,33 @@ const resetFilter=(day)=>{
        onProfileUpdated={getUserInfo}
       />
      </Modal>
+     <Modal
+     isOpen={openMapModal}
+     onRequestClose={()=>setOpenMapModal(false)}
+     style={
+      {
+        overlay:{
+          background:"rgba(0,0,0,0.2)",
+          zIndex:999,
+        },
+      }}
+      appElement={document.getElementById("root")}
+        className="model-box-wide"
+     >
+      <MapView
+       allStories={allStories}
+       onClose={()=>setOpenMapModal(false)}
+       onSelectStory={(story)=>{
+        setOpenMapModal(false);
+        handleViewStory(story);
+       }}
+      />
+     </Modal>
+     <button className='w-16 h-16 flex justify-center rounded-full bg-primary hover:bg-cyan-400 fixed right-10 bottom-28' title="Map of your travels" onClick={()=>{
+      setOpenMapModal(true);
+     }}>
+      <FaMapMarkedAlt className='text-[28px] text-white mt-4'/>
+     </button>
      <button className='w-16 h-16 flex justify-center rounded-full bg-primary hover:bg-cyan-400 fixed right-10 bottom-10' onClick={()=>{
       setOpenAddEditModal({isShown:true,type:"add",data:null});
      }}>

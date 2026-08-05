@@ -47,7 +47,10 @@
     }
     .model-box{
         @apply w-[80vw] md:w-[40%] h-[80vh] bg-white rounded-lg mx-auto mt-14 p-5 overflow-y-scroll scrollbar z-50
-        
+
+    }
+    .model-box-wide{
+        @apply w-[90vw] md:w-[70%] h-[80vh] bg-white rounded-lg mx-auto mt-14 p-5 overflow-hidden z-50
     }
     .btn-small{
        @apply  flex items-center gap-1 text-xs font-medium text-primary bg-cyan-50 font-bold shadow-cyan-100/0 border border-cyan-100 hover:bg-primary hover:text-white rounded px-3;
