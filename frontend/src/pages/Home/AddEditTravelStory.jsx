@@ -15,6 +15,26 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
   const [visitedLocation,setVisitedLocation]=useState(storyInfo?.visitedLocation||[]);
   const [storyImg,setStoryImg]=useState(storyInfo?.imageUrl||null);
   const [Error,setError]=useState("");
+  const [isPolishing,setIsPolishing]=useState(false);
+
+  const handlePolishStory=async()=>{
+    if(!story.trim()){
+      toast.error("Write your story first, then let AI polish it");
+      return;
+    }
+    setIsPolishing(true);
+    try {
+      const response=await axiosInstance.post('/ai/polish-story',{story,title});
+      if(response.data&&response.data.polished){
+        setStory(response.data.polished);
+        toast.success("Story polished — review and edit as you like");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message||"Failed to polish story");
+    } finally {
+      setIsPolishing(false);
+    }
+  };
 
   
   const handleAddorUpdateClick=()=>{
@@ -203,9 +223,14 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
   />
   {/*adding the story*/}
   <div className="flex flex-col gap-2 mt-4">
-    <label className="input-label">
-      STORY
-    </label>
+    <div className="flex items-center justify-between">
+      <label className="input-label">
+        STORY
+      </label>
+      <button type="button" className="btn-small" onClick={handlePolishStory} disabled={isPolishing}>
+        {isPolishing?"POLISHING...":"✨ POLISH WITH AI"}
+      </button>
+    </div>
     <textarea type="text" className='text-sm text-slate-950 outline-none bg-slate-50
      p-2'
      rows={10}
