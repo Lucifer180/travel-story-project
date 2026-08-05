@@ -11,6 +11,7 @@ import Footer from '../../components/Cards/Footer';
 import TravelStoryCard from '../../components/Cards/TravelStoryCard';
 import ViewTravelStory from '../../components/Cards/ViewTravelStory';
 import Navbar from '../../components/Navbar';
+import ProfileModal from '../../components/ProfileModal';
 import axiosInstance from '../../utils/axiosInstance';
 import { getEmptyCardImg, getEmptyCardMessage } from '../../utils/helper';
 import AddEditTravelStory from './AddEditTravelStory';
@@ -29,6 +30,7 @@ const Home = () => {
     isShown:false,
     data:null,
   });
+  const [openProfileModal,setOpenProfileModal]=useState(false);
   const [searchQuery,setSearchQuery]=useState('');
   const getUserInfo = async () => {
     try {
@@ -173,6 +175,7 @@ const resetFilter=(day)=>{
      setSearchQuery={setSearchQuery}
      onSearchNote={onSearchStory}
      handleClearSearch={handleClearSearch}
+     onProfileClick={()=>setOpenProfileModal(true)}
      />
    <FilterInfoTitle 
    filterType={filterType}
@@ -279,6 +282,25 @@ const resetFilter=(day)=>{
         deleteTravelStory(openViewModal.data||null)
       }} storyInfo={openViewModal.data||null}/>
       
+     </Modal>
+     <Modal
+     isOpen={openProfileModal}
+     onRequestClose={()=>setOpenProfileModal(false)}
+     style={
+      {
+        overlay:{
+          background:"rgba(0,0,0,0.2)",
+          zIndex:999,
+        },
+      }}
+      appElement={document.getElementById("root")}
+        className="model-box"
+     >
+      <ProfileModal
+       userInfo={userInfo}
+       onClose={()=>setOpenProfileModal(false)}
+       onProfileUpdated={getUserInfo}
+      />
      </Modal>
      <button className='w-16 h-16 flex justify-center rounded-full bg-primary hover:bg-cyan-400 fixed right-10 bottom-10' onClick={()=>{
       setOpenAddEditModal({isShown:true,type:"add",data:null});

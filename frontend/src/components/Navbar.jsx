@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Svgg from '../assets/svgg.svg';
 import ProfileInfo from './Cards/ProfileInfo';
 import SearchBar from './SearchBar';
-const Navbar = ({ userInfo, searchQuery, setSearchQuery, onSearchNote, handleClearSearch }) => {
+const Navbar = ({ userInfo, searchQuery, setSearchQuery, onSearchNote, handleClearSearch, onProfileClick }) => {
     const isToken = localStorage.getItem("token");
     const navigate = useNavigate();
 
@@ -34,7 +34,7 @@ const Navbar = ({ userInfo, searchQuery, setSearchQuery, onSearchNote, handleCle
                         handleSearch={handleSearch}
                         onClearSearch={onClearSearch}
                     />
-                    <ProfileInfo userInfo={userInfo} onLogout={onLogout} />
+                    <ProfileInfo userInfo={userInfo} onLogout={onLogout} onProfileClick={onProfileClick} />
                 </>
             )}
         </div>
