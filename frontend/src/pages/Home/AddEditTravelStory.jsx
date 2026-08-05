@@ -2,14 +2,14 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { MdUpdate } from "react-icons/md";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import DateSelector from '../../components/Cards/DateSelector';
 import ImageSelector from '../../components/Cards/ImageSelector';
 import TagInput from '../../components/input/TagInput';
 import axiosInstance from '../../utils/axiosInstance';
 import uploadImage from '../../utils/uploadImage';
 const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
-  const [visitedDate,setVisitedDaate]=useState(storyInfo?.visitedDate||null);
+  const [visitedDate,setVisitedDate]=useState(storyInfo?.visitedDate||null);
   const [title,setTitle]=useState(storyInfo?.title||"");
   const [story,setStory]=useState(storyInfo?.story||"");
   const [visitedLocation,setVisitedLocation]=useState(storyInfo?.visitedLocation||[]);
@@ -18,39 +18,38 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
 
   
   const handleAddorUpdateClick=()=>{
-console.log("input Data",{
-  title,
-  story,
-  storyImg,
-  visitedDate,
-  visitedLocation,
-});
-if(!title){
-  toast.error("Please enter the title");
-  setError("Please enter the title")
-}
-if(!story){
-  setError("please enter the story ");
-  toast.error("Please enter the Story");
-}
-if(!visitedDate){
-  setError("please choose the date ");
-  toast.error("Please choose the date");
-}
-if(!visitedLocation){
-  setError("please enter the visited location or locations ");
-  toast.error("Please choose the visited location or locations");
-}
-if(!storyImg){
-  setError("please provide the story image");
-  toast.error("Please provide the story image");
-}
-if(type=="edit"){
-  UpdateTravelStory();
-}
-else{
-  addNewTravelStory();
-}
+    if(!title){
+      setError("Please enter the title");
+      toast.error("Please enter the title");
+      return;
+    }
+    if(!story){
+      setError("Please enter the story");
+      toast.error("Please enter the story");
+      return;
+    }
+    if(!visitedDate){
+      setError("Please choose the date");
+      toast.error("Please choose the date");
+      return;
+    }
+    if(visitedLocation.length===0){
+      setError("Please enter the visited location or locations");
+      toast.error("Please enter the visited location or locations");
+      return;
+    }
+    if(!storyImg){
+      setError("Please provide the story image");
+      toast.error("Please provide the story image");
+      return;
+    }
+    setError("");
+    if(type=="edit"){
+      UpdateTravelStory();
+    }
+    else{
+      addNewTravelStory();
+    }
   }
   const UpdateTravelStory=async ()=>{
     const storyId=storyInfo._id;
@@ -122,22 +121,24 @@ else{
         }
   }
   const handleDeleteStoryImg=async()=> {
-     const deleteImgRes=await axiosInstance.delete("/delete-image/",{
-      params:{
-        imageUrl:storyInfo.imageUrl,
-      }
-     });
-     if(deleteImgRes.data){
-      const storyId=storyInfo._id;
-      const postData={
+    // only a file already uploaded to the server needs deleting
+    if(!storyInfo?.imageUrl||typeof storyImg!=='string')return;
+    try {
+      await axiosInstance.delete("/delete-image",{
+        params:{imageUrl:storyInfo.imageUrl},
+      });
+      // point the story at the placeholder so it doesn't reference a dead file
+      await axiosInstance.put('/edit-story/'+storyInfo._id,{
         title,
         story,
         visitedLocation,
-        visitedDate:moment().valueOf(),
-        imgUrl:"",
-      };
-     }
-     const response=await axiosInstance.put('/edit-story/'+storyId, postData);
+        visitedDate:visitedDate?moment(visitedDate).valueOf():moment().valueOf(),
+        imageUrl:"",
+      });
+      getAllTravelStories();
+    } catch (error) {
+      console.error("Error deleting story image:",error);
+    }
   };
   
   return (
@@ -159,7 +160,7 @@ else{
               </button>
             ):(
               <>
-              <button className="btn-small" onClick={UpdateTravelStory}>
+              <button className="btn-small" onClick={handleAddorUpdateClick}>
               <MdUpdate
               className='text-lg'
               />
@@ -192,7 +193,7 @@ else{
 {/* date picker*/}
   </div>
   <div className="my-3">
-    <DateSelector date={visitedDate} setDate={setVisitedDaate} />
+    <DateSelector date={visitedDate} setDate={setVisitedDate} />
   </div>
   <ImageSelector
   
@@ -218,16 +219,6 @@ else{
   <TagInput tags={visitedLocation} setTags={setVisitedLocation}></TagInput>
 </div>
  </div>
- <ToastContainer
-    position="top-right"
-    autoClose={5000}
-    hideProgressBar={false}
-    closeOnClick
-    pauseOnHover
-    draggable
-    pauseOnFocusLoss
-/>
-
     </div>
   )
 }

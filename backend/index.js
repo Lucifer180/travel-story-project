@@ -22,15 +22,15 @@ mongoose.connect(config.connectionString)
 
 const User=require("./models/user_model");
 const {authenticateToken}  = require("./utilities");
-const travelStoryModel = require("./models/travelStory-model");
+// const travelStoryModel = require("./models/travelStory-model");
 app.post("/create-account",async(req,res)=>{
     const {fullName,email,password}=req.body;
     if(!fullName||!email||!password){
         return res.status(400).json({error:true,message:"All fields are required"});
     }
    
-    const isName=await User.findOne({fullName,email});
-    if(isName){
+    const isUser=await User.findOne({email});
+    if(isUser){
         return res.status(400).json({error:true,message:"user already exists"});
     }
 
@@ -50,7 +50,7 @@ app.post("/create-account",async(req,res)=>{
     );
     return res.status(201).json({
         error:false,
-        user:{fullName:user.fullName,email:user.email,accessToken:user.accessToken},
+        user:{fullName:user.fullName,email:user.email},
         accessToken,
         message:"registration Successfull",
     })
@@ -67,13 +67,13 @@ app.post('/login', async (req, res) => {
         // Find user by email
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: "User not found" });
+            return res.status(400).json({ error: true, message: "Invalid credentials" });
         }
 
         // Validate password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ error: true, message: "Invalid credentials" });
         }
 
         // Generate access token
@@ -139,7 +139,7 @@ catch(err){
   res.status(500).json({error:true,message:err.message});
 }
 });
-app.post("/image-upload",upload.single("image"),async (req,res)=>{
+app.post("/image-upload",authenticateToken,upload.single("image"),async (req,res)=>{
      try{
         if(req.file){
         const imageUrl=`http://localhost:8000/uploads/${req.file.filename}`;
@@ -154,7 +154,7 @@ app.post("/image-upload",upload.single("image"),async (req,res)=>{
         res.status(500).json({error:true,message:err.message});
      }
 })
-app.delete('/delete-image',async (req,res)=>{
+app.delete('/delete-image',authenticateToken,async (req,res)=>{
     const {imageUrl}=req.query;
     if(!imageUrl){
         return res.status(401).json({error:true,message:"No image url provided"});
@@ -199,7 +199,7 @@ app.put("/edit-story/:id",authenticateToken,async(req,res)=>{
 
       }
       catch(err){
-  res.status(500).json({error:true,message:error.message});
+  res.status(500).json({error:true,message:err.message});
       }
 });
 app.delete("/delete-story/:id", authenticateToken, async (req, res) => {
@@ -220,16 +220,14 @@ app.delete("/delete-story/:id", authenticateToken, async (req, res) => {
         const fileName = path.basename(imageUrl);
         const filePath = path.join(__dirname, "uploads", fileName);
 
-        // Delete the image file
+        // Remove the image file if it exists; the story is already gone either way
         fs.unlink(filePath, (err) => {
             if (err) {
-                console.error(err); // Log the error for debugging
-                return res.status(400).json({ error: true, message: `Failed to delete image: ${err.message}` });
+                console.error("Failed to delete image:", err.message);
             }
-
-            // Send success response after image deletion
-            res.status(200).json({ message: "Travel story deleted successfully" });
         });
+
+        res.status(200).json({ message: "Travel story deleted successfully" });
 
     } catch (error) {
         console.error(error); // Log the error for debugging
