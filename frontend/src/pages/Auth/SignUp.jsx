@@ -14,7 +14,8 @@ const SignUp = () => {
   const handleSignup=async (e)=>{
     e.preventDefault();
     if(!name){
-      setError("Please enter your name")
+      setError("Please enter your name");
+      return;
     }
     if(!validateEmail(email)){
     setError("Please enter a valid email address");
@@ -86,7 +87,7 @@ const SignUp = () => {
             {error && <p className='text-red-500 text-xs pb-1'>{error}</p>}
             <button type='submit' className='btn-primary'>Create Account</button>
             <p className='text-xs text-slate-500 text-center my-4'>Or</p>
-            <button type='submit'
+            <button type='button'
                     className='btn-primary btn-light'
                     onClick={()=>{
                       navigate("/login");
