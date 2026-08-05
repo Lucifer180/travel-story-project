@@ -9,6 +9,6 @@ const travelStorySchema=new Schema({
     userId:{type:Schema.Types.ObjectId,ref:"User",required:true},
     createdOn:{type:Date,default:Date.now},
     imageUrl:{type:String,required:true},
-    visitedDate:{type:String,required:true}
+    visitedDate:{type:Date,required:true}
 });
 module.exports=mongoose.model("TravelStory",travelStorySchema);

@@ -1,93 +1,64 @@
-<<<<<<< HEAD
-"# travel_story_web" 
-=======
-Here’s the updated README with installation and usage instructions included: 
+# Travel Story
 
----
+A full-stack MERN application for keeping a personal travel journal. Sign up, write stories about places you've visited, attach photos and locations, and browse them with search, date filters, and favourites.
 
-# Full-Stack Web Application - MERN Stack
+## Features
 
-This project is a dynamic, responsive web application built using the MERN stack (MongoDB, Express.js, React.js, and Node.js). It demonstrates the seamless integration of a robust backend with an interactive and modern frontend.
+- **User accounts** — signup/login with JWT authentication and bcrypt-hashed passwords
+- **Travel stories** — create, edit, and delete stories with a title, text, cover image, visited locations, and visit date
+- **Image uploads** — cover photos stored on the server via Multer
+- **Search & filter** — full-text search across stories and date-range filtering with a calendar picker
+- **Favourites** — pin your best memories to the top
+- **Public sharing** — generate a read-only link to share a story with anyone
+- **Map view** — see everywhere you've been on an interactive map
+- **AI assist** — destination suggestions based on your travel history and a one-click story polish, powered by the Claude API
 
-## Key Features
+## Tech Stack
 
-- **Dynamic User Interface**: Designed a responsive and user-friendly interface with React.js, ensuring compatibility across various devices.
-- **RESTful API**: Built a scalable RESTful API with Express.js and Node.js to handle data interactions efficiently.
-- **Database Integration**: Leveraged MongoDB for efficient data storage, retrieval, and seamless implementation of CRUD operations.
-- **User Authentication**: Integrated secure authentication mechanisms to safeguard user data and restricted features.
-- **Real-Time Updates**: Enabled real-time data updates to enhance interactivity and user engagement.
-- **Responsive Design**: Styled with Tailwind CSS, providing a clean and modern look across all pages.
+| Layer    | Tech |
+|----------|------|
+| Frontend | React 18, Vite, Tailwind CSS, Axios, React Router |
+| Backend  | Node.js, Express.js |
+| Database | MongoDB (Mongoose) |
+| AI       | Anthropic Claude API |
 
-## Technologies Used
+## Getting Started
 
-- MongoDB
-- Express.js
-- React.js
-- Node.js
-- Tailwind CSS
-- Axios
+### Prerequisites
 
-## Installation and Setup
+- Node.js 18+
+- A running MongoDB instance (local or Atlas)
 
-To run this project locally, follow these steps:
+### Setup
 
-1. **Clone the Repository**:
+1. **Clone the repository**
    ```bash
    git clone <repository_url>
-   cd <repository_folder>
+   cd travel-story-project
    ```
 
-2. **Install Dependencies**:
-   - Install backend dependencies:
-     ```bash
-     cd server
-     npm install
-     ```
-   - Install frontend dependencies:
-     ```bash
-     cd client
-     npm install
-     ```
+2. **Backend**
+   ```bash
+   cd backend
+   npm install
+   ```
+   Create `backend/.env`:
+   ```
+   ACCESS_TOKEN_SECRET=<any long random string>
+   ANTHROPIC_API_KEY=<your Anthropic API key>   # optional, needed for AI features
+   ```
+   The MongoDB connection string lives in `backend/config.json` (defaults to `mongodb://localhost:27017/`).
 
-3. **Configure Environment Variables**:
-   - Create a `.env` file in the `server` folder and add the following:
-     ```
-     MONGO_URI=<Your MongoDB Connection String>
-     PORT=5000
-     JWT_SECRET=<Your JWT Secret Key>
-     ```
-   - Ensure you have a MongoDB database set up and update the `MONGO_URI` accordingly.
+   Start the server:
+   ```bash
+   npm start
+   ```
+   The API runs on `http://localhost:8000`.
 
-4. **Start the Development Server**:
-   - Run the backend server:
-     ```bash
-     cd server
-     npm run dev
-     ```
-   - Run the frontend server:
-     ```bash
-     cd client
-     npm start
-     ```
-
-5. **Access the Application**:
-   - Open your browser and navigate to `http://localhost:3000`.
-
-## Learning Outcomes
-
-Developing this project allowed me to:
-
-- Strengthen my full-stack development skills by working with the MERN stack.
-- Gain hands-on experience in building RESTful APIs and managing database operations.
-- Explore advanced concepts like real-time updates and secure user authentication.
-- Understand the importance of responsive and intuitive UI/UX design.
-
-## Connect with Me
-
-I’d love to share experiences and collaborate on web development projects! Feel free to reach out and connect. 
-
---- 
-
-Let me know if further adjustments are needed!
->>>>>>> c4395dbc532556682e1493b62003924c96cf6048
-"# travel_story_web" 
+3. **Frontend**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+   Open the URL Vite prints (default `http://localhost:5173`).

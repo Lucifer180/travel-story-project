@@ -32,7 +32,7 @@ const Home = () => {
   const [searchQuery,setSearchQuery]=useState('');
   const getUserInfo = async () => {
     try {
-      const response = await axiosInstance.get('http://localhost:8000/get-user');
+      const response = await axiosInstance.get('/get-user');
       if (response.data && response.data.user) {
         setUserInfo(response.data.user);
         
@@ -41,7 +41,7 @@ const Home = () => {
         console.error("User data not found");
       }
     } catch (error) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         localStorage.clear();
         navigate("/login");
       } else {
@@ -78,13 +78,15 @@ const Home = () => {
       });
   
       if (response.data && response.data.story) {
-        await getAllTravelStories();
-        await toast.success("Stories list updated Successfully");
-      } else if(filterType==='search'&&searchQuery) {
-       filterStoriesByDate(dateRange);
-      }
-      else{
-        getAllTravelStories();
+        toast.success("Story updated successfully");
+        // refresh whichever list is currently on screen so the filter sticks
+        if (filterType === 'search' && searchQuery) {
+          onSearchStory(searchQuery);
+        } else if (filterType === 'date') {
+          filterStoriesByDate(dateRange);
+        } else {
+          getAllTravelStories();
+        }
       }
     } catch (error) {
       console.error("Error updating story:", error);
@@ -225,7 +227,9 @@ const resetFilter=(day)=>{
      {/*Add and Edit Travel Story Model*/}
      <Modal 
      isOpen={openAddEditModal.isShown}
-     onRequestClose={()=>{}}
+     onRequestClose={()=>{
+      setOpenAddEditModal({isShown:false,type:"add",data:null});
+     }}
      style={
       {
         overlay:{
@@ -249,7 +253,9 @@ const resetFilter=(day)=>{
      </Modal>
      <Modal
      isOpen={openViewModal.isShown}
-     onRequestClose={()=>{}}
+     onRequestClose={()=>{
+      setOpenViewModal((prevState)=>({...prevState,isShown:false}));
+     }}
      style={
       {
         overlay:{
