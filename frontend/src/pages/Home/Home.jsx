@@ -14,6 +14,7 @@ import ViewTravelStory from '../../components/Cards/ViewTravelStory';
 import Navbar from '../../components/Navbar';
 import MapView from '../../components/MapView';
 import ProfileModal from '../../components/ProfileModal';
+import TravelIdeas from '../../components/TravelIdeas';
 import axiosInstance from '../../utils/axiosInstance';
 import { getEmptyCardImg, getEmptyCardMessage } from '../../utils/helper';
 import AddEditTravelStory from './AddEditTravelStory';
@@ -34,6 +35,7 @@ const Home = () => {
   });
   const [openProfileModal,setOpenProfileModal]=useState(false);
   const [openMapModal,setOpenMapModal]=useState(false);
+  const [openIdeasModal,setOpenIdeasModal]=useState(false);
   const [searchQuery,setSearchQuery]=useState('');
   const getUserInfo = async () => {
     try {
@@ -327,6 +329,26 @@ const resetFilter=(day)=>{
        }}
       />
      </Modal>
+     <Modal
+     isOpen={openIdeasModal}
+     onRequestClose={()=>setOpenIdeasModal(false)}
+     style={
+      {
+        overlay:{
+          background:"rgba(0,0,0,0.2)",
+          zIndex:999,
+        },
+      }}
+      appElement={document.getElementById("root")}
+        className="model-box"
+     >
+      {openIdeasModal&&<TravelIdeas onClose={()=>setOpenIdeasModal(false)}/>}
+     </Modal>
+     <button className='w-16 h-16 flex justify-center items-center rounded-full bg-primary hover:bg-cyan-400 fixed right-10 bottom-[184px]' title="AI travel ideas" onClick={()=>{
+      setOpenIdeasModal(true);
+     }}>
+      <span className='text-[24px]'>✨</span>
+     </button>
      <button className='w-16 h-16 flex justify-center rounded-full bg-primary hover:bg-cyan-400 fixed right-10 bottom-28' title="Map of your travels" onClick={()=>{
       setOpenMapModal(true);
      }}>

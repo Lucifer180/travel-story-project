@@ -13,6 +13,9 @@ const upload=require("./multer");
 const fs=require("fs");
 const path=require("path");
 const crypto=require("crypto");
+const Anthropic=require("@anthropic-ai/sdk");
+//AI client is optional:routes return 503 if no ANTHROPIC_API_KEY is set
+const anthropic=process.env.ANTHROPIC_API_KEY?new Anthropic():null;
 mongoose.connect(config.connectionString)
     .then(() => {
         console.log("Connected to MongoDB");
@@ -394,6 +397,94 @@ app.put("/change-password",authenticateToken,async(req,res)=>{
     }
     catch(err){
         res.status(500).json({error:true,message:err.message});
+    }
+});
+//AI:suggest new destinations based on the user's travel history
+app.get("/ai/travel-suggestions",authenticateToken,async(req,res)=>{
+    if(!anthropic){
+        return res.status(503).json({error:true,message:"AI features are not configured. Add ANTHROPIC_API_KEY to backend/.env"});
+    }
+    const {userId}=req.user;
+    try{
+        const stories=await TravelStory.find({userId}).sort({visitedDate:-1}).limit(30);
+        if(stories.length===0){
+            return res.status(400).json({error:true,message:"Add a few travel stories first so the AI has something to work with"});
+        }
+        const history=stories.map(s=>({
+            title:s.title,
+            locations:s.visitedLocation,
+            visitedDate:s.visitedDate,
+            excerpt:s.story.slice(0,300),
+        }));
+        const response=await anthropic.messages.create({
+            model:"claude-opus-5",
+            max_tokens:2048,
+            system:"You are a travel advisor inside a personal travel journal app. Based on the user's past trips, suggest new destinations they would love. Suggest places they have NOT already visited. Ground each suggestion in their history (e.g. they seem to enjoy beaches, mountains, cities).",
+            messages:[{role:"user",content:`Here are my past trips as JSON:\n${JSON.stringify(history)}\n\nSuggest 4 new destinations for me.`}],
+            output_config:{
+                format:{
+                    type:"json_schema",
+                    schema:{
+                        type:"object",
+                        properties:{
+                            suggestions:{
+                                type:"array",
+                                items:{
+                                    type:"object",
+                                    properties:{
+                                        destination:{type:"string"},
+                                        country:{type:"string"},
+                                        reason:{type:"string",description:"Why this fits the user, referencing their past trips"},
+                                        bestTime:{type:"string",description:"Best season/months to visit"}
+                                    },
+                                    required:["destination","country","reason","bestTime"],
+                                    additionalProperties:false
+                                }
+                            }
+                        },
+                        required:["suggestions"],
+                        additionalProperties:false
+                    }
+                }
+            }
+        });
+        if(response.stop_reason==="refusal"){
+            return res.status(500).json({error:true,message:"The AI declined this request. Please try again."});
+        }
+        const text=response.content.find(b=>b.type==="text")?.text||"{}";
+        const parsed=JSON.parse(text);
+        res.status(200).json({suggestions:parsed.suggestions||[]});
+    }
+    catch(err){
+        console.error("AI suggestion error:",err);
+        res.status(500).json({error:true,message:"Failed to generate suggestions"});
+    }
+});
+//AI:polish/improve the writing of a story draft
+app.post("/ai/polish-story",authenticateToken,async(req,res)=>{
+    if(!anthropic){
+        return res.status(503).json({error:true,message:"AI features are not configured. Add ANTHROPIC_API_KEY to backend/.env"});
+    }
+    const {story,title}=req.body;
+    if(!story||!story.trim()){
+        return res.status(400).json({error:true,message:"Story text is required"});
+    }
+    try{
+        const response=await anthropic.messages.create({
+            model:"claude-opus-5",
+            max_tokens:4096,
+            system:"You polish travel journal entries. Improve grammar, flow, and vividness while keeping the writer's voice, facts, and first-person perspective. Keep roughly the same length. Return ONLY the polished story text, no preamble or commentary.",
+            messages:[{role:"user",content:`Title: ${title||"(untitled)"}\n\nStory:\n${story}`}],
+        });
+        if(response.stop_reason==="refusal"){
+            return res.status(500).json({error:true,message:"The AI declined this request. Please try again."});
+        }
+        const polished=response.content.find(b=>b.type==="text")?.text||"";
+        res.status(200).json({polished});
+    }
+    catch(err){
+        console.error("AI polish error:",err);
+        res.status(500).json({error:true,message:"Failed to polish story"});
     }
 });
 app.use("/uploads",express.static(path.join(__dirname,"uploads")));
