@@ -1,6 +1,7 @@
 const bcrypt=require("bcrypt");
 const express=require("express");
-require("dotenv").config();
+//load .env from this folder regardless of where the server is launched from
+require("dotenv").config({path:require("path").join(__dirname,".env")});
 const config=require("./config.json");
 const mongoose=require('mongoose');
 const cors=require("cors");
@@ -16,7 +17,7 @@ const crypto=require("crypto");
 const Anthropic=require("@anthropic-ai/sdk");
 //AI client is optional:routes return 503 if no ANTHROPIC_API_KEY is set
 const anthropic=process.env.ANTHROPIC_API_KEY?new Anthropic():null;
-mongoose.connect(config.connectionString)
+mongoose.connect(process.env.MONGODB_URI||config.connectionString)
     .then(() => {
         console.log("Connected to MongoDB");
     })

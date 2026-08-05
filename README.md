@@ -45,9 +45,10 @@ A full-stack MERN application for keeping a personal travel journal. Sign up, wr
    Create `backend/.env`:
    ```
    ACCESS_TOKEN_SECRET=<any long random string>
+   MONGODB_URI=<your MongoDB connection string>
    ANTHROPIC_API_KEY=<your Anthropic API key>   # optional, needed for AI features
    ```
-   The MongoDB connection string lives in `backend/config.json` (defaults to `mongodb://localhost:27017/`).
+   If `MONGODB_URI` is not set, the server falls back to the connection string in `backend/config.json` (`mongodb://localhost:27017/`).
 
    Start the server:
    ```bash

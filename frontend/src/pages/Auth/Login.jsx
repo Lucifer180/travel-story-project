@@ -59,7 +59,7 @@ const Login = () => {
         </div>
         <div className='w-2/4 h-[75vh] bg-white rounded-r-lg relative p-16 shadow-lg shadow-cyan-200/20 z-50'>
         
-          <form onSubmit={()=>handleLogin}>
+          <form onSubmit={handleLogin}>
             <h4 className='text-2xl font-semibold mb-7'>Login</h4>
             <input type="text" 
             placeholder='Email'
@@ -72,7 +72,7 @@ const Login = () => {
               
             }}/>
             {error && <p className='text-red-500 text-xs pb-1'>{error}</p>}
-            <button type='submit' className='btn-primary' onClick={handleLogin}>Login</button>
+            <button type='submit' className='btn-primary'>Login</button>
             <p className='text-xs text-slate-500 text-center my-4'>Or</p>
             <button type='button'
                     className='btn-primary btn-light'
