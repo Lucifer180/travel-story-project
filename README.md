@@ -11,7 +11,7 @@ A full-stack MERN application for keeping a personal travel journal. Sign up, wr
 - **Favourites** — pin your best memories to the top
 - **Public sharing** — generate a read-only link to share a story with anyone
 - **Map view** — see everywhere you've been on an interactive map
-- **AI assist** — destination suggestions based on your travel history and a one-click story polish, powered by the Claude API
+- **AI assist** — destination suggestions based on your travel history and a one-click story polish, powered by the OpenAI API
 
 ## Tech Stack
 
@@ -20,7 +20,7 @@ A full-stack MERN application for keeping a personal travel journal. Sign up, wr
 | Frontend | React 18, Vite, Tailwind CSS, Axios, React Router |
 | Backend  | Node.js, Express.js |
 | Database | MongoDB (Mongoose) |
-| AI       | Anthropic Claude API |
+| AI       | OpenAI API (any OpenAI-compatible endpoint) |
 
 ## Getting Started
 
@@ -46,7 +46,9 @@ A full-stack MERN application for keeping a personal travel journal. Sign up, wr
    ```
    ACCESS_TOKEN_SECRET=<any long random string>
    MONGODB_URI=<your MongoDB connection string>
-   ANTHROPIC_API_KEY=<your Anthropic API key>   # optional, needed for AI features
+   OPENAI_API_KEY=<your OpenAI API key>   # optional, needed for AI features
+   OPENAI_MODEL=gpt-4o-mini               # optional, defaults to gpt-4o-mini
+   OPENAI_BASE_URL=<compatible endpoint>  # optional, e.g. an OpenCode Zen gateway
    ```
    If `MONGODB_URI` is not set, the server falls back to the connection string in `backend/config.json` (`mongodb://localhost:27017/`).
 
