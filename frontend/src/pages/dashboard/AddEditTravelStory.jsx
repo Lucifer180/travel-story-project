@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { MdUpdate } from "react-icons/md";
 import { toast } from 'react-toastify';
-import DateSelector from '../../components/Cards/DateSelector';
-import ImageSelector from '../../components/Cards/ImageSelector';
-import TagInput from '../../components/input/TagInput';
-import axiosInstance from '../../utils/axiosInstance';
-import uploadImage from '../../utils/uploadImage';
+import { polishStory as polishStoryApi } from '../../api/ai.api';
+import { addStory, editStory } from '../../api/stories.api';
+import { deleteImage, uploadImage } from '../../api/upload.api';
+import DateSelector from '../../components/common/DateSelector';
+import ImageSelector from '../../components/common/ImageSelector';
+import TagInput from '../../components/common/TagInput';
 const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
   const [visitedDate,setVisitedDate]=useState(storyInfo?.visitedDate||null);
   const [title,setTitle]=useState(storyInfo?.title||"");
@@ -24,7 +25,7 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
     }
     setIsPolishing(true);
     try {
-      const response=await axiosInstance.post('/ai/polish-story',{story,title});
+      const response=await polishStoryApi({story,title});
       if(response.data&&response.data.polished){
         setStory(response.data.polished);
         toast.success("Story polished — review and edit as you like");
@@ -94,8 +95,7 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
           imageUrl:imageUrl,
         }
       }
-      const response=await axiosInstance.put("/edit-story/"+storyId,
-        postData);
+      const response=await editStory(storyId,postData);
         if(response.data){
           toast.success("Story updated successfully");
         }
@@ -118,7 +118,7 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
             const imgUploadRes=await uploadImage(storyImg);
             imageUrl=imgUploadRes.imageUrl||"";
           }
-          const response=await axiosInstance.post("/add-travel-story",{
+          const response=await addStory({
             title,
             story,
             imageUrl:imageUrl||"",
@@ -144,11 +144,9 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
     // only a file already uploaded to the server needs deleting
     if(!storyInfo?.imageUrl||typeof storyImg!=='string')return;
     try {
-      await axiosInstance.delete("/delete-image",{
-        params:{imageUrl:storyInfo.imageUrl},
-      });
+      await deleteImage(storyInfo.imageUrl);
       // point the story at the placeholder so it doesn't reference a dead file
-      await axiosInstance.put('/edit-story/'+storyInfo._id,{
+      await editStory(storyInfo._id,{
         title,
         story,
         visitedLocation,

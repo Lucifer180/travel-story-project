@@ -6,16 +6,23 @@ import { IoMdAdd } from "react-icons/io";
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import EmptyCard from '../../components/Cards/EmptyCard';
-import FilterInfoTitle from '../../components/Cards/FilterInfoTitle';
-import Footer from '../../components/Cards/Footer';
-import TravelStoryCard from '../../components/Cards/TravelStoryCard';
-import ViewTravelStory from '../../components/Cards/ViewTravelStory';
-import Navbar from '../../components/Navbar';
-import MapView from '../../components/MapView';
-import ProfileModal from '../../components/ProfileModal';
-import TravelIdeas from '../../components/TravelIdeas';
-import axiosInstance from '../../utils/axiosInstance';
+import {
+  deleteStory,
+  filterStoriesByDate as filterStoriesByDateApi,
+  getAllStories,
+  searchStories,
+  updateIsFavourite as updateIsFavouriteApi,
+} from '../../api/stories.api';
+import { getUser } from '../../api/user.api';
+import TravelIdeas from '../../components/ai/TravelIdeas';
+import EmptyCard from '../../components/common/EmptyCard';
+import FilterInfoTitle from '../../components/common/FilterInfoTitle';
+import Footer from '../../components/layout/Footer';
+import Navbar from '../../components/layout/Navbar';
+import ProfileModal from '../../components/profile/ProfileModal';
+import MapView from '../../components/story/MapView';
+import TravelStoryCard from '../../components/story/TravelStoryCard';
+import ViewTravelStory from '../../components/story/ViewTravelStory';
 import { getEmptyCardImg, getEmptyCardMessage } from '../../utils/helper';
 import AddEditTravelStory from './AddEditTravelStory';
 const Home = () => {
@@ -39,7 +46,7 @@ const Home = () => {
   const [searchQuery,setSearchQuery]=useState('');
   const getUserInfo = async () => {
     try {
-      const response = await axiosInstance.get('/get-user');
+      const response = await getUser();
       if (response.data && response.data.user) {
         setUserInfo(response.data.user);
         
@@ -58,7 +65,7 @@ const Home = () => {
   };
   const getAllTravelStories = async () => {
     try {
-        const response = await axiosInstance.get('/get-all-stories');
+        const response = await getAllStories();
         if (response.data && response.data.stories) {
             setAllStories(response.data.stories);
         }
@@ -80,9 +87,7 @@ const Home = () => {
     const storyId = storyData._id;
   
     try {
-      const response = await axiosInstance.put(`/update-is-favourite/${storyId}`, {
-        isFavourite: !storyData.isFavourite,
-      });
+      const response = await updateIsFavouriteApi(storyId, !storyData.isFavourite);
   
       if (response.data && response.data.story) {
         toast.success("Story updated successfully");
@@ -104,7 +109,7 @@ const Home = () => {
   const deleteTravelStory = async (data) => {
     const storyId = data._id;
     try {
-        const response = await axiosInstance.delete(`/delete-story/${storyId}`); // Corrected line
+        const response = await deleteStory(storyId);
         if (response.data && !response.data.error) { // Check for success instead of error
             toast.success("Story Deleted Successfully"); // Changed to success toast
             setOpenViewModal((prevstate) => ({ ...prevstate, isShown: false }));
@@ -122,9 +127,7 @@ const handleClearSearch=()=>{
 
 const onSearchStory = async (query) => {
   try {
-      const response = await axiosInstance.get('/search', {
-          params: { query }
-      });
+      const response = await searchStories(query);
       if (response.data && response.data.stories) {
           setFilterType("search");
           setAllStories(response.data.stories);
@@ -140,9 +143,7 @@ const filterStoriesByDate = async (day) => {
     const endDate = day.to ? moment(day.to).valueOf() : null;
 
     if (startDate && endDate) {
-      const response = await axiosInstance.get("/travel-stories/filter", {
-        params: { startDate, endDate },
-      });
+      const response = await filterStoriesByDateApi({ startDate, endDate });
 
       if (response.data && response.data.stories) {
         setFilterType('date');
