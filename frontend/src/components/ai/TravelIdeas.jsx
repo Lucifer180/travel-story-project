@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GrMap } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
-import axiosInstance from '../utils/axiosInstance';
+import { getTravelSuggestions } from '../../api/ai.api';
 
 const TravelIdeas = ({ onClose }) => {
   const [suggestions, setSuggestions] = useState([]);
@@ -11,7 +11,7 @@ const TravelIdeas = ({ onClose }) => {
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
-        const response = await axiosInstance.get('/ai/travel-suggestions');
+        const response = await getTravelSuggestions();
         setSuggestions(response.data.suggestions || []);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to get suggestions");

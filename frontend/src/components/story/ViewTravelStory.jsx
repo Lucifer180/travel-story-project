@@ -4,13 +4,13 @@ import { GrMap } from "react-icons/gr";
 import { IoMdClose, IoMdShare } from "react-icons/io";
 import { MdDeleteOutline, MdLinkOff, MdUpdate } from "react-icons/md";
 import { toast } from 'react-toastify';
-import axiosInstance from '../../utils/axiosInstance';
+import { shareStory, unshareStory } from '../../api/stories.api';
 const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
   const [shareId,setShareId]=useState(storyInfo?.shareId||null);
 
   const handleShare=async()=>{
     try {
-      const response=await axiosInstance.post(`/stories/${storyInfo._id}/share`);
+      const response=await shareStory(storyInfo._id);
       if(response.data&&response.data.shareId){
         setShareId(response.data.shareId);
         const link=`${window.location.origin}/shared/${response.data.shareId}`;
@@ -23,7 +23,7 @@ const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
   };
   const handleUnshare=async()=>{
     try {
-      await axiosInstance.delete(`/stories/${storyInfo._id}/share`);
+      await unshareStory(storyInfo._id);
       setShareId(null);
       toast.success("Sharing disabled");
     } catch (error) {

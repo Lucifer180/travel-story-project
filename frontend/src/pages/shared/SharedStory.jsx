@@ -2,7 +2,7 @@ import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { GrMap } from "react-icons/gr";
 import { useParams } from 'react-router-dom';
-import axiosInstance from '../utils/axiosInstance';
+import { getSharedStory } from '../../api/stories.api';
 
 const SharedStory = () => {
   const { shareId } = useParams();
@@ -12,7 +12,7 @@ const SharedStory = () => {
   useEffect(() => {
     const fetchStory = async () => {
       try {
-        const response = await axiosInstance.get(`/shared/${shareId}`);
+        const response = await getSharedStory(shareId);
         if (response.data && response.data.story) {
           setStory(response.data.story);
         }

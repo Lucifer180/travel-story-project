@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { IoMdClose } from "react-icons/io";
 import { toast } from 'react-toastify';
-import axiosInstance from '../utils/axiosInstance';
-import PasswordInput from './input/PasswordInput';
+import { changePassword, updateProfile } from '../../api/user.api';
+import PasswordInput from '../common/PasswordInput';
 
 const ProfileModal = ({ userInfo, onClose, onProfileUpdated }) => {
   const [fullName, setFullName] = useState(userInfo?.fullName || "");
@@ -16,7 +16,7 @@ const ProfileModal = ({ userInfo, onClose, onProfileUpdated }) => {
       return;
     }
     try {
-      const response = await axiosInstance.put('/update-profile', { fullName });
+      const response = await updateProfile(fullName);
       if (response.data && response.data.user) {
         toast.success("Profile updated successfully");
         onProfileUpdated();
@@ -40,7 +40,7 @@ const ProfileModal = ({ userInfo, onClose, onProfileUpdated }) => {
       return;
     }
     try {
-      await axiosInstance.put('/change-password', { currentPassword, newPassword });
+      await changePassword({ currentPassword, newPassword });
       toast.success("Password changed successfully");
       setCurrentPassword("");
       setNewPassword("");

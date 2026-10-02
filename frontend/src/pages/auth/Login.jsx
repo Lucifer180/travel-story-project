@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PasswordInput from '../../components/input/PasswordInput';
-import axiosInstance from '../../utils/axiosInstance';
+import PasswordInput from '../../components/common/PasswordInput';
+import { logIn } from '../../api/auth.api';
 import { validateEmail } from '../../utils/helper';
 const Login = () => {
   const [email,setEmail]=useState("");
@@ -21,11 +21,8 @@ const Login = () => {
     }
     setError("");
     try{
-      const response=await axiosInstance.post("/login",{
-        email:email,
-        password:password,
-      });
-      if(response.data||response.data.accessToken){
+      const response=await logIn({email,password});
+      if(response.data&&response.data.accessToken){
         localStorage.setItem("token",response.data.accessToken);
         navigate("/dashboard")
       }

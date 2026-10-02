@@ -6,7 +6,7 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import React, { useEffect, useMemo, useState } from 'react';
 import { IoMdClose } from "react-icons/io";
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import { geocodeLocations } from '../utils/geocode';
+import { geocodeLocations } from '../../utils/geocode';
 
 // leaflet's default marker images don't resolve under bundlers without this
 delete L.Icon.Default.prototype._getIconUrl;

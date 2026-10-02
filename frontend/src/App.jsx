@@ -1,9 +1,9 @@
 import React from 'react'
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
-import Login from './pages/Auth/Login'
-import Signup from './pages/Auth/SignUp'
-import Home from './pages/Home/Home'
-import SharedStory from './pages/SharedStory'
+import Login from './pages/auth/Login'
+import Signup from './pages/auth/SignUp'
+import Home from './pages/dashboard/Home'
+import SharedStory from './pages/shared/SharedStory'
 const App = () => {
   return (
     <div>

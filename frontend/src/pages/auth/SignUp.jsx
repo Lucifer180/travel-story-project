@@ -1,8 +1,8 @@
 import * as motion from "motion/react-client";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PasswordInput from '../../components/input/PasswordInput';
-import axiosInstance from '../../utils/axiosInstance';
+import PasswordInput from '../../components/common/PasswordInput';
+import { signUp } from '../../api/auth.api';
 import { validateEmail } from '../../utils/helper';
 const SignUp = () => {
   const [email,setEmail]=useState("");
@@ -27,12 +27,8 @@ const SignUp = () => {
     }
     setError("");
     try{
-      const response=await axiosInstance.post("/create-account",{
-        fullName:name,
-        email:email,
-        password:password,
-      });
-      if(response.data||response.data.accessToken){
+      const response=await signUp({fullName:name,email,password});
+      if(response.data&&response.data.accessToken){
         localStorage.setItem("token",response.data.accessToken);
         navigate("/dashboard")
       }

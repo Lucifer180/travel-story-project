@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Svgg from '../assets/svgg.svg';
-import ProfileInfo from './Cards/ProfileInfo';
+import Svgg from '../../assets/svgg.svg';
+import ProfileInfo from './ProfileInfo';
 import SearchBar from './SearchBar';
 const Navbar = ({ userInfo, searchQuery, setSearchQuery, onSearchNote, handleClearSearch, onProfileClick }) => {
     const isToken = localStorage.getItem("token");
