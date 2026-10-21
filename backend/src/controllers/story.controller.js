@@ -18,6 +18,35 @@ function removeImageFile(imageUrl) {
     });
 }
 
+// 'Kyoto, temple "Namche Bazaar"' -> ["Kyoto", "temple", "Namche Bazaar"].
+// Kept in sync with splitKeywords in frontend/src/utils/keywords.js.
+function splitKeywords(query) {
+    const found = [];
+    for (const m of String(query).matchAll(/"([^"]+)"|[^\s,"]+/g)) {
+        const keyword = (m[1] ?? m[0]).trim();
+        if (keyword && !found.some((k) => k.toLowerCase() === keyword.toLowerCase())) found.push(keyword);
+    }
+    return found;
+}
+
+function escapeRegex(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Trims a Drive link and checks it's an http(s) URL. Returns { value } or
+// { error } with a message for the client. Empty means "no link".
+function parseDriveLink(raw) {
+    const link = typeof raw === "string" ? raw.trim() : "";
+    if (!link) return { value: "" };
+    try {
+        const url = new URL(link);
+        if (url.protocol === "https:" || url.protocol === "http:") return { value: url.toString() };
+    } catch {
+        // fall through to the error below
+    }
+    return { error: "Drive link must be a valid http(s) URL" };
+}
+
 // POST /add-travel-story
 async function addStory(req, res) {
     const { title, story, visitedLocation, imageUrl, visitedDate } = req.body;
@@ -25,6 +54,10 @@ async function addStory(req, res) {
 
     if (!title || !story || !visitedLocation || !visitedDate || !imageUrl) {
         return res.status(400).json({ error: true, message: "all fields are required" });
+    }
+    const driveLink = parseDriveLink(req.body.driveLink);
+    if (driveLink.error) {
+        return res.status(400).json({ error: true, message: driveLink.error });
     }
 
     const travelStory = new TravelStory({
@@ -34,6 +67,7 @@ async function addStory(req, res) {
         userId,
         imageUrl,
         visitedDate: new Date(parseInt(visitedDate)),
+        driveLink: driveLink.value,
     });
     await travelStory.save();
 
@@ -56,6 +90,10 @@ async function editStory(req, res) {
     if (!title || !story || !visitedLocation || !visitedDate) {
         return res.status(400).json({ error: true, message: "All fields are required" });
     }
+    const driveLink = parseDriveLink(req.body.driveLink);
+    if (driveLink.error) {
+        return res.status(400).json({ error: true, message: driveLink.error });
+    }
 
     const travelStory = await TravelStory.findOne({ _id: id, userId });
     if (!travelStory) {
@@ -67,6 +105,8 @@ async function editStory(req, res) {
     travelStory.visitedLocation = visitedLocation;
     travelStory.imageUrl = imageUrl || placeholderImgUrl;
     travelStory.visitedDate = new Date(parseInt(visitedDate));
+    // clients that don't send the field leave the existing link alone
+    if (req.body.driveLink !== undefined) travelStory.driveLink = driveLink.value;
     await travelStory.save();
 
     res.status(200).json({ story: travelStory, message: "updateSuccessfull" });
@@ -114,13 +154,22 @@ async function searchStories(req, res) {
         return res.status(400).json({ error: true, message: "query is required" });
     }
 
+    // Every keyword must appear somewhere in the story (title, text or a place),
+    // so "kyoto temple" finds stories mentioning both. Keywords are matched
+    // literally, not as regex.
+    const keywords = splitKeywords(query);
+    if (keywords.length === 0) {
+        return res.status(400).json({ error: true, message: "query is required" });
+    }
+
     const stories = await TravelStory.find({
         userId,
-        $or: [
-            { title: { $regex: query, $options: "i" } },
-            { story: { $regex: query, $options: "i" } },
-            { visitedLocation: { $regex: query, $options: "i" } },
-        ],
+        $and: keywords.map((keyword) => {
+            const pattern = new RegExp(escapeRegex(keyword), "i");
+            return {
+                $or: [{ title: pattern }, { story: pattern }, { visitedLocation: pattern }],
+            };
+        }),
     }).sort({ isFavourite: -1 });
 
     res.status(200).json({ stories });

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import React, { useState } from 'react';
+import { FaGoogleDrive } from "react-icons/fa";
 import { IoMdAdd, IoMdClose } from "react-icons/io";
 import { MdUpdate } from "react-icons/md";
 import { toast } from 'react-toastify';
@@ -7,14 +8,25 @@ import { polishStory as polishStoryApi } from '../../api/ai.api';
 import { addStory, editStory } from '../../api/stories.api';
 import { deleteImage, uploadImage } from '../../api/upload.api';
 import DateSelector from '../../components/common/DateSelector';
+import { useStoryStore } from '../../store/useStoryStore';
 import ImageSelector from '../../components/common/ImageSelector';
 import TagInput from '../../components/common/TagInput';
-const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
+const isHttpUrl=(value)=>{
+  try{
+    const url=new URL(value);
+    return url.protocol==="https:"||url.protocol==="http:";
+  }catch{
+    return false;
+  }
+};
+const AddEditTravelStory = ({storyInfo,type,onClose}) => {
+  const getAllTravelStories=useStoryStore((s)=>s.refresh);
   const [visitedDate,setVisitedDate]=useState(storyInfo?.visitedDate||null);
   const [title,setTitle]=useState(storyInfo?.title||"");
   const [story,setStory]=useState(storyInfo?.story||"");
   const [visitedLocation,setVisitedLocation]=useState(storyInfo?.visitedLocation||[]);
   const [storyImg,setStoryImg]=useState(storyInfo?.imageUrl||null);
+  const [driveLink,setDriveLink]=useState(storyInfo?.driveLink||"");
   const [Error,setError]=useState("");
   const [isPolishing,setIsPolishing]=useState(false);
 
@@ -64,6 +76,11 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
       toast.error("Please provide the story image");
       return;
     }
+    if(driveLink.trim()&&!isHttpUrl(driveLink.trim())){
+      setError("Please enter a valid Google Drive link (starting with https://)");
+      toast.error("Please enter a valid Google Drive link");
+      return;
+    }
     setError("");
     if(type=="edit"){
       UpdateTravelStory();
@@ -81,6 +98,7 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
         story,
         imageUrl:storyInfo.imageUrl||"",
         visitedLocation:visitedLocation,
+        driveLink:driveLink.trim(),
         visitedDate:visitedDate
             ?moment(visitedDate).valueOf()
             :moment().valueOf(),
@@ -123,6 +141,7 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
             story,
             imageUrl:imageUrl||"",
             visitedLocation:visitedLocation,
+            driveLink:driveLink.trim(),
             visitedDate:visitedDate
                 ?moment(visitedDate).valueOf()
                 :moment().valueOf(),
@@ -240,6 +259,18 @@ const AddEditTravelStory = ({storyInfo,type,onClose,getAllTravelStories}) => {
 <div className="pt-3">
   <label className='input-label'>Visited Locations</label>
   <TagInput tags={visitedLocation} setTags={setVisitedLocation}></TagInput>
+</div>
+<div className="flex flex-col gap-2 pt-4">
+  <label className='input-label'>GOOGLE DRIVE LINK (OPTIONAL)</label>
+  <div className="flex items-center gap-2 bg-slate-50 rounded px-3">
+    <FaGoogleDrive className='text-[#1fa463] shrink-0'/>
+    <input type="url"
+    className='w-full text-sm text-slate-950 outline-none bg-transparent py-2'
+    placeholder='https://drive.google.com/drive/folders/...'
+    value={driveLink}
+    onChange={({target})=>setDriveLink(target.value)}/>
+  </div>
+  <p className='text-xs text-slate-400'>Share a folder of trip photos. Set it to "Anyone with the link" in Drive so readers can open it.</p>
 </div>
  </div>
     </div>

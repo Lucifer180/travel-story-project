@@ -49,6 +49,9 @@
         @apply w-[80vw] md:w-[40%] h-[80vh] bg-white rounded-lg mx-auto mt-14 p-5 overflow-y-scroll scrollbar z-50
 
     }
+    .model-box-book{
+        @apply w-[95vw] max-w-[900px] max-h-[90vh] bg-white rounded-lg mx-auto mt-10 p-5 overflow-y-auto scrollbar z-50
+    }
     .model-box-wide{
         @apply w-[90vw] md:w-[70%] h-[80vh] bg-white rounded-lg mx-auto mt-14 p-5 overflow-hidden z-50
     }
@@ -64,5 +67,18 @@
        }
     .close_btn{
         @apply text-white bg-cyan-500 hover:bg-slate-400 hover:text-cyan-500 text-lg rounded-full top-2 right-2
+    }
+}
+/* 3D helpers for the interactive book (not built into Tailwind 3) */
+@layer utilities{
+    .perspective-\[2000px\]{
+        perspective: 2000px;
+    }
+    .preserve-3d{
+        transform-style: preserve-3d;
+    }
+    .backface-hidden{
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
     }
 }

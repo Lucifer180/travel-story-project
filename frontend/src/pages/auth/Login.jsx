@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PasswordInput from '../../components/common/PasswordInput';
-import { logIn } from '../../api/auth.api';
+import { useAuthStore } from '../../store/useAuthStore';
 import { validateEmail } from '../../utils/helper';
 const Login = () => {
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
   const [error,setError]=useState(null);
+  const login=useAuthStore((s)=>s.login);
   const navigate=useNavigate();
 
   const handleLogin=async (e)=>{
@@ -20,25 +21,17 @@ const Login = () => {
       return;
     }
     setError("");
-    try{
-      const response=await logIn({email,password});
-      if(response.data&&response.data.accessToken){
-        localStorage.setItem("token",response.data.accessToken);
-        navigate("/dashboard")
-      }
-    }catch(err){
-      if(err.response&&err.response.data&&err.response.data.message){
-        setError(err.response.data.message);
-      }
-      else{
-        setError("An unexpected error occured.please try again");
-      }
+    const loginError=await login({email,password});
+    if(loginError){
+      setError(loginError);
+      return;
     }
+    navigate("/dashboard");
     
 }
   
   return (
-    <div className='h-screen bg-cyan-50 overflow-hidden relative'>
+    <div className='h-screen overflow-hidden relative'>
       <div className='login-ui-box right-10 -top-40 '/>
       <div className='login-ui-box right-1/2 bg-cyan-200 -bottom-40 '/>
       <div className='container h-screen flex items-center justify-center px-20 mx-auto'>

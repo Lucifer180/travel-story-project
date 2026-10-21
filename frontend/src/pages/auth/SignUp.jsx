@@ -2,13 +2,14 @@ import * as motion from "motion/react-client";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PasswordInput from '../../components/common/PasswordInput';
-import { signUp } from '../../api/auth.api';
+import { useAuthStore } from '../../store/useAuthStore';
 import { validateEmail } from '../../utils/helper';
 const SignUp = () => {
   const [email,setEmail]=useState("");
   const [name,setName]=useState("");
   const [password,setPassword]=useState("");
   const [error,setError]=useState(null);
+  const signup=useAuthStore((s)=>s.signup);
   const navigate=useNavigate();
 
   const handleSignup=async (e)=>{
@@ -26,24 +27,16 @@ const SignUp = () => {
       return;
     }
     setError("");
-    try{
-      const response=await signUp({fullName:name,email,password});
-      if(response.data&&response.data.accessToken){
-        localStorage.setItem("token",response.data.accessToken);
-        navigate("/dashboard")
-      }
-    }catch(err){
-      if(err.response&&err.response.data&&err.response.data.message){
-        setError(err.response.data.message);
-      }
-      else{
-        setError("An unexpected error occured.please try again");
-      }
+    const signupError=await signup({fullName:name,email,password});
+    if(signupError){
+      setError(signupError);
+      return;
     }
+    navigate("/dashboard");
 }
   
   return (
-    <div className='h-screen bg-cyan-50 overflow-hidden relative'>
+    <div className='h-screen overflow-hidden relative'>
       <div className='login-ui-box right-10 -top-40 '/>
       <div className='login-ui-box right-1/2 bg-cyan-200 -bottom-40 '/>
       <div className='container h-screen flex items-center justify-center px-20 mx-auto'>

@@ -10,6 +10,8 @@ const travelStorySchema=new Schema({
     createdOn:{type:Date,default:Date.now},
     imageUrl:{type:String,required:true},
     visitedDate:{type:Date,required:true},
+    // optional Google Drive (or any) link to the trip's photos, shown to readers
+    driveLink:{type:String,default:""},
     shareId:{type:String,default:null,index:true}
 });
 module.exports=mongoose.model("TravelStory",travelStorySchema);

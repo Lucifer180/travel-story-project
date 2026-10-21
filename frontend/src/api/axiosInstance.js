@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useAuthStore } from '../store/useAuthStore';
 import { BASE_URL } from '../utils/constants';
 
 const axiosInstance=axios.create({
@@ -11,7 +12,7 @@ const axiosInstance=axios.create({
 });
 axiosInstance.interceptors.request.use(
     (config)=>{
-        const accessToken=localStorage.getItem("token");
+        const accessToken=useAuthStore.getState().token;
         if(accessToken){
             config.headers.Authorization=`Bearer ${accessToken}`;
         }
