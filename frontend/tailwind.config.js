@@ -7,6 +7,8 @@ export default {
   theme: {
     fontFamily:{
      display:["Poppins","sans-serif"],
+     sans:["Poppins","sans-serif"],
+     serif:["Georgia","Cambria","Times New Roman","serif"],
     },
     extend: {
       colors:{

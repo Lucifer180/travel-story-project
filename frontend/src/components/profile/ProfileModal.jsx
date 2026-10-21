@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { IoMdClose } from "react-icons/io";
 import { toast } from 'react-toastify';
 import { changePassword, updateProfile } from '../../api/user.api';
+import { useAuthStore } from '../../store/useAuthStore';
 import PasswordInput from '../common/PasswordInput';
 
-const ProfileModal = ({ userInfo, onClose, onProfileUpdated }) => {
+const ProfileModal = ({ onClose }) => {
+  const userInfo = useAuthStore((s) => s.user);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
   const [fullName, setFullName] = useState(userInfo?.fullName || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -19,7 +22,7 @@ const ProfileModal = ({ userInfo, onClose, onProfileUpdated }) => {
       const response = await updateProfile(fullName);
       if (response.data && response.data.user) {
         toast.success("Profile updated successfully");
-        onProfileUpdated();
+        fetchUser();
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to update profile");

@@ -1,10 +1,9 @@
-import moment from 'moment';
 import React, { useState } from 'react';
-import { GrMap } from "react-icons/gr";
 import { IoMdClose, IoMdShare } from "react-icons/io";
 import { MdDeleteOutline, MdLinkOff, MdUpdate } from "react-icons/md";
 import { toast } from 'react-toastify';
 import { shareStory, unshareStory } from '../../api/stories.api';
+import StoryBook from '../book/StoryBook';
 const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
   const [shareId,setShareId]=useState(storyInfo?.shareId||null);
 
@@ -65,23 +64,14 @@ const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
                     </button>
                   </div>
          </div>
-         <div className="flex-1 flex flex-col gap-2 py-4">
-          <h1 className="text-2xl text-slate-950">
-            {storyInfo&&storyInfo.title}
-            </h1>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs text-slate-500">
-                {storyInfo&&moment(storyInfo.visitedDate).format("Do MMM YYYY")}
-              </span>
-              <div className="inline-flex items-center gap-2 text-[13px] text-cyan-600 bg-cyan-200/40 rounded py-1 px-2">
-              <GrMap className='text-sm'/>
-              {storyInfo&&storyInfo.visitedLocation.map((item,index)=>storyInfo.visitedLocation.length==index+1?`${item}`:`${item},`)}
-              </div>
-            </div>
-           <img src={storyInfo && storyInfo.imageUrl} alt="selected" className='w-full h-[300px] object-cover rounded-lg' />
-           <div className="mt-4">
-            <p className='text-sm text-slate-950 leading-6 text-justify whitespace-pre-line'>{storyInfo&&storyInfo.story}</p>
-           </div>
+         <div className="overflow-x-auto py-2">
+          {storyInfo&&(
+            <StoryBook
+              story={storyInfo}
+              shareUrl={shareId?`${window.location.origin}/shared/${shareId}`:null}
+              onAddDriveLink={onEditClick}
+            />
+          )}
          </div>
     </div>
   )

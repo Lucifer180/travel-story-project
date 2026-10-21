@@ -1,26 +1,25 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Svgg from '../../assets/svgg.svg';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useStoryStore } from '../../store/useStoryStore';
+import { useUIStore } from '../../store/useUIStore';
 import ProfileInfo from './ProfileInfo';
 import SearchBar from './SearchBar';
-const Navbar = ({ userInfo, searchQuery, setSearchQuery, onSearchNote, handleClearSearch, onProfileClick }) => {
-    const isToken = localStorage.getItem("token");
+const Navbar = () => {
+    const isToken = useAuthStore((s) => s.token);
+    const userInfo = useAuthStore((s) => s.user);
+    const logout = useAuthStore((s) => s.logout);
+    const searchQuery = useStoryStore((s) => s.searchQuery);
+    const filterType = useStoryStore((s) => s.filterType);
+    const clearFilters = useStoryStore((s) => s.clearFilters);
+    const setProfileOpen = useUIStore((s) => s.setProfileOpen);
+    const setSearchOpen = useUIStore((s) => s.setSearchOpen);
     const navigate = useNavigate();
 
     const onLogout = () => {
-        localStorage.clear();
+        logout();
         navigate("/login");
-    };
-
-    const handleSearch = () => {
-        if (searchQuery) {
-            onSearchNote(searchQuery);
-        }
-    };
-
-    const onClearSearch = () => {
-        handleClearSearch();
-        setSearchQuery("");
     };
 
     return (
@@ -28,13 +27,12 @@ const Navbar = ({ userInfo, searchQuery, setSearchQuery, onSearchNote, handleCle
             <img src={Svgg} alt="Travel Story Logo" className='h-9'/>
             {isToken && (
                 <>
-                    <SearchBar 
-                        value={searchQuery}
-                        onChange={({ target }) => setSearchQuery(target.value)}
-                        handleSearch={handleSearch}
-                        onClearSearch={onClearSearch}
+                    <SearchBar
+                        value={filterType === "search" ? searchQuery : ""}
+                        onOpen={() => setSearchOpen(true)}
+                        onClearSearch={clearFilters}
                     />
-                    <ProfileInfo userInfo={userInfo} onLogout={onLogout} onProfileClick={onProfileClick} />
+                    <ProfileInfo userInfo={userInfo} onLogout={onLogout} onProfileClick={() => setProfileOpen(true)} />
                 </>
             )}
         </div>
