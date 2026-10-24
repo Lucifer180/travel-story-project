@@ -14,7 +14,11 @@ export const deleteStory = (storyId) =>
 export const updateIsFavourite = (storyId, isFavourite) =>
     axiosInstance.put(`/update-is-favourite/${storyId}`, { isFavourite });
 
-export const searchStories = (query) =>
+// payload: { gallery?: string[], memorableImage?: string }
+export const updateStoryPhotos = (storyId, payload) =>
+    axiosInstance.put(`/stories/${storyId}/photos`, payload);
+
+export const searchStories =(query) =>
     axiosInstance.get("/search", { params: { query } });
 
 export const filterStoriesByDate = ({ startDate, endDate }) =>

@@ -88,8 +88,9 @@ export default function InteractiveBook({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, nextPage, prevPage, handleCloseBook]);
 
-  // Clicks inside page content (links, buttons) must not also turn the page.
-  const stopIfInteractive = (e) => e.target.closest('a,button,input') !== null;
+  // Clicks inside page content (links, buttons, maps, photo frames) must not
+  // also turn the page.
+  const stopIfInteractive = (e) => e.target.closest('a,button,input,[data-no-flip]') !== null;
 
   return (
     <div

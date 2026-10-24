@@ -3,9 +3,11 @@ import { IoMdClose, IoMdShare } from "react-icons/io";
 import { MdDeleteOutline, MdLinkOff, MdUpdate } from "react-icons/md";
 import { toast } from 'react-toastify';
 import { shareStory, unshareStory } from '../../api/stories.api';
+import { useStoryStore } from '../../store/useStoryStore';
 import StoryBook from '../book/StoryBook';
 const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
   const [shareId,setShareId]=useState(storyInfo?.shareId||null);
+  const savePhotos=useStoryStore((s)=>s.savePhotos);
 
   const handleShare=async()=>{
     try {
@@ -70,6 +72,7 @@ const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
               story={storyInfo}
               shareUrl={shareId?`${window.location.origin}/shared/${shareId}`:null}
               onAddDriveLink={onEditClick}
+              onSavePhotos={savePhotos}
             />
           )}
          </div>

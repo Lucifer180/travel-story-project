@@ -123,9 +123,59 @@ async function deleteStory(req, res) {
     }
 
     await travelStory.deleteOne();
-    removeImageFile(travelStory.imageUrl);
+    [travelStory.imageUrl, travelStory.memorableImage, ...travelStory.gallery].forEach(removeImageFile);
 
     res.status(200).json({ message: "Travel story deleted successfully" });
+}
+
+const MAX_GALLERY_PHOTOS = 6;
+
+// Only images uploaded through /image-upload may be attached as photos.
+function isUploadedImageUrl(value) {
+    try {
+        return new URL(value).pathname.startsWith("/uploads/");
+    } catch {
+        return false;
+    }
+}
+
+// PUT /stories/:id/photos - set the gallery frames and/or the memorable photo.
+// Files that are dropped or replaced are deleted from disk.
+async function updatePhotos(req, res) {
+    const { id } = req.params;
+    const { userId } = req.user;
+    const { gallery, memorableImage } = req.body;
+
+    const travelStory = await TravelStory.findOne({ _id: id, userId });
+    if (!travelStory) {
+        return res.status(404).json({ error: true, message: "Travel story not found" });
+    }
+
+    const before = [travelStory.memorableImage, ...travelStory.gallery].filter(Boolean);
+
+    if (gallery !== undefined) {
+        if (!Array.isArray(gallery) || gallery.length > MAX_GALLERY_PHOTOS) {
+            return res.status(400).json({ error: true, message: `Gallery holds up to ${MAX_GALLERY_PHOTOS} photos` });
+        }
+        // empty strings are empty frames, kept so each photo stays in its frame
+        if (!gallery.every((url) => url === "" || isUploadedImageUrl(url))) {
+            return res.status(400).json({ error: true, message: "Gallery photos must be uploaded images" });
+        }
+        travelStory.gallery = gallery;
+    }
+    if (memorableImage !== undefined) {
+        if (memorableImage !== "" && !isUploadedImageUrl(memorableImage)) {
+            return res.status(400).json({ error: true, message: "The memorable photo must be an uploaded image" });
+        }
+        travelStory.memorableImage = memorableImage;
+    }
+    await travelStory.save();
+
+    // Keep any file the story still uses elsewhere (e.g. moved between frames).
+    const after = new Set([travelStory.imageUrl, travelStory.memorableImage, ...travelStory.gallery]);
+    before.filter((url) => !after.has(url)).forEach(removeImageFile);
+
+    res.status(200).json({ story: travelStory, message: "Photos updated" });
 }
 
 // PUT /update-is-favourite/:id
@@ -257,6 +307,7 @@ module.exports = {
     editStory,
     deleteStory,
     updateIsFavourite,
+    updatePhotos,
     searchStories,
     filterStoriesByDate,
     shareStory,

@@ -14,6 +14,7 @@ router.get("/get-all-stories", authenticateToken, asyncHandler(storyController.g
 router.put("/edit-story/:id", authenticateToken, asyncHandler(storyController.editStory));
 router.delete("/delete-story/:id", authenticateToken, asyncHandler(storyController.deleteStory));
 router.put("/update-is-favourite/:id", authenticateToken, asyncHandler(storyController.updateIsFavourite));
+router.put("/stories/:id/photos", authenticateToken, asyncHandler(storyController.updatePhotos));
 
 router.get("/search", authenticateToken, asyncHandler(storyController.searchStories));
 router.get("/travel-stories/filter", authenticateToken, asyncHandler(storyController.filterStoriesByDate));

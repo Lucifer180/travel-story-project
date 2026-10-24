@@ -7,7 +7,10 @@ import {
     getAllStories,
     searchStories,
     updateIsFavourite as updateIsFavouriteApi,
+    updateStoryPhotos,
 } from '../api/stories.api';
+import { uploadImage } from '../api/upload.api';
+import { useUIStore } from './useUIStore';
 
 export const STORIES_PER_PAGE = 5;
 
@@ -103,6 +106,31 @@ export const useStoryStore = create((set, get) => ({
             toast.error('An error occurred while updating the story. Please try again.');
         }
         return null;
+    },
+
+    // Uploads `file` (if given) and saves the book photos. `change(story, url)`
+    // returns the { gallery?, memorableImage? } payload to save. Updates the
+    // list and the story open in the viewer; resolves to the updated story.
+    savePhotos: async (story, change, file) => {
+        try {
+            let url = '';
+            if (file) {
+                const uploaded = await uploadImage(file);
+                url = uploaded.imageUrl || '';
+                if (!url) throw new Error('Upload failed');
+            }
+            const response = await updateStoryPhotos(story._id, change(story, url));
+            const updated = response.data?.story;
+            if (!updated) return null;
+            set((s) => ({ stories: s.stories.map((item) => (item._id === updated._id ? updated : item)) }));
+            const { viewer } = useUIStore.getState();
+            if (viewer.data?._id === updated._id) useUIStore.setState({ viewer: { ...viewer, data: updated } });
+            return updated;
+        } catch (error) {
+            console.error('Error saving photos:', error);
+            toast.error(error.response?.data?.message || 'Failed to save the photo. Please try again.');
+            return null;
+        }
     },
 
     deleteStory: async (story) => {

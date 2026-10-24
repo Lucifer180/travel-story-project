@@ -56,7 +56,7 @@ A full-stack MERN application for keeping a personal travel journal. Sign up, wr
    ```bash
    npm start
    ```
-   The API runs on `http://localhost:8000`.
+   The API runs on `http://localhost:8001` (change it with `PORT` in `backend/.env`, and point the frontend at it with `VITE_API_URL` in `frontend/.env`).
 
 3. **Frontend**
    ```bash

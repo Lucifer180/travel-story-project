@@ -9,7 +9,7 @@ const legacyConfig = require("../../config.json");
 const BACKEND_ROOT = path.join(__dirname, "..", "..");
 
 const config = {
-    port: process.env.PORT || 8000,
+    port: process.env.PORT || 8001,
     mongoUri: process.env.MONGODB_URI || legacyConfig.connectionString,
     jwtSecret: process.env.ACCESS_TOKEN_SECRET,
     jwtExpiresIn: "72h",

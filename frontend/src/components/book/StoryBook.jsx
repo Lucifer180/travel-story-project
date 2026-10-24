@@ -5,6 +5,7 @@ import { MdContentCopy, MdOutlineDateRange } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import { storyColor, storyPhotoUrl } from '../../utils/storyImage';
 import InteractiveBook from './InteractiveBook';
+import { GalleryPage, MapPage, MemorablePage, galleryFrames } from './StoryBookPages';
 
 // Characters of story text that fit on one page at the book's size.
 const CHARS_PER_PAGE = 560;
@@ -70,11 +71,14 @@ const LinkCard = ({ icon, title, href, onCopy, copyLabel }) => (
 
 /**
  * A travel story as an interactive book:
- *   1 Index · 2 At a glance · 3.. The story · Places visited · Photos & links
+ *   1 Index · 2 At a glance · 3.. The story · Most memorable · Photo gallery ·
+ *   On the map · Places visited · Photos & links
  * `shareUrl` is the story's public link (if shared). `onAddDriveLink` shows an
  * "add a link" button on the links page when there's no Drive link yet.
+ * `onSavePhotos(story, change, file)` makes the photo frames uploadable
+ * (see useStoryStore.savePhotos); without it the book is read-only.
  */
-const StoryBook = ({ story, shareUrl, onAddDriveLink, width = 320, height = 450 }) => {
+const StoryBook = ({ story, shareUrl, onAddDriveLink, onSavePhotos, width = 320, height = 450 }) => {
   if (!story) return null;
   const storyChunks = paginate(story.story);
 
@@ -147,6 +151,25 @@ const StoryBook = ({ story, shareUrl, onAddDriveLink, width = 320, height = 450 
     ));
     if (i === 0) contents.push({ label: 'The Story', page });
   });
+
+  // Readers only see photo pages that have photos; the owner always gets the
+  // frames so they can fill them in.
+  const canEdit = Boolean(onSavePhotos);
+  if (canEdit || story.memorableImage) {
+    contents.push({
+      label: 'Most memorable',
+      page: add(() => <MemorablePage story={story} editable={canEdit} onSavePhotos={onSavePhotos} />),
+    });
+  }
+  if (canEdit || galleryFrames(story).some(Boolean)) {
+    contents.push({
+      label: 'Photo gallery',
+      page: add(() => <GalleryPage story={story} editable={canEdit} onSavePhotos={onSavePhotos} />),
+    });
+  }
+  if (locations.length) {
+    contents.push({ label: 'On the map', page: add(() => <MapPage story={story} />) });
+  }
 
   contents.push({
     label: 'Places visited',
