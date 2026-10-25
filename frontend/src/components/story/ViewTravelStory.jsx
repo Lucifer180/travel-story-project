@@ -4,6 +4,7 @@ import { MdDeleteOutline, MdLinkOff, MdUpdate } from "react-icons/md";
 import { toast } from 'react-toastify';
 import { shareStory, unshareStory } from '../../api/stories.api';
 import { useStoryStore } from '../../store/useStoryStore';
+import DownloadBookButton from '../book/export/DownloadBookButton';
 import StoryBook from '../book/StoryBook';
 const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
   const [shareId,setShareId]=useState(storyInfo?.shareId||null);
@@ -35,6 +36,10 @@ const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
     <div className='relative'>
       <div className="flex items-center justify-end">
          <div className="flex items-center gap-3 bg-cyan-50/50 p-2 rounded-l-lg">
+                      <DownloadBookButton
+                        story={storyInfo}
+                        shareUrl={shareId?`${window.location.origin}/shared/${shareId}`:null}
+                      />
                       <button className="btn-small" onClick={handleShare} title="Copy a public link to this story">
                       <IoMdShare
                       className='text-lg'

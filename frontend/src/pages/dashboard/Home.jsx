@@ -20,7 +20,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useStoryStore } from '../../store/useStoryStore';
 import { useUIStore } from '../../store/useUIStore';
 import { getEmptyCardImg, getEmptyCardMessage } from '../../utils/helper';
-import AddEditTravelStory from './AddEditTravelStory';
+import AddEditTravelStory from '../../components/story/AddEditTravelStory';
 
 const modalStyle={
   overlay:{

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 import { getSharedStory } from '../../api/stories.api';
+import DownloadBookButton from '../../components/book/export/DownloadBookButton';
 import StoryBook from '../../components/book/StoryBook';
 
 const SharedStory = () => {
@@ -40,6 +41,9 @@ const SharedStory = () => {
   return (
     <div className='min-h-screen py-10'>
       <div className='max-w-[900px] mx-auto bg-white/90 rounded-lg shadow-lg shadow-slate-200/60 border border-slate-200 p-6 overflow-x-auto'>
+        <div className='flex justify-end'>
+          <DownloadBookButton story={story} shareUrl={window.location.href} />
+        </div>
         <StoryBook story={story} shareUrl={window.location.href} />
         <p className='text-xs text-slate-400 mt-2 text-center'>Shared from Travel Story</p>
       </div>

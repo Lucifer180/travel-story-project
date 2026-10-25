@@ -7,10 +7,10 @@ import { toast } from 'react-toastify';
 import { polishStory as polishStoryApi } from '../../api/ai.api';
 import { addStory, editStory } from '../../api/stories.api';
 import { deleteImage, uploadImage } from '../../api/upload.api';
-import DateSelector from '../../components/common/DateSelector';
+import DateSelector from '../common/DateSelector';
 import { useStoryStore } from '../../store/useStoryStore';
-import ImageSelector from '../../components/common/ImageSelector';
-import TagInput from '../../components/common/TagInput';
+import ImageSelector from '../common/ImageSelector';
+import TagInput from '../common/TagInput';
 const isHttpUrl=(value)=>{
   try{
     const url=new URL(value);
