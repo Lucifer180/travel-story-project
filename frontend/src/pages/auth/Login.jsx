@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PasswordInput from '../../components/common/PasswordInput';
 import { useAuthStore } from '../../store/useAuthStore';
 import { validateEmail } from '../../utils/helper';
@@ -61,6 +61,9 @@ const Login = () => {
             <PasswordInput value={password}  onChange={({target})=>{setPassword(target.value);
               
             }}/>
+            <div className='flex justify-end -mt-1 mb-2'>
+              <Link to='/forgot-password' className='text-xs text-primary hover:underline'>Forgot password?</Link>
+            </div>
             {error && <p className='text-red-500 text-xs pb-1'>{error}</p>}
             <button type='submit' className='btn-primary'>Login</button>
             <p className='text-xs text-slate-500 text-center my-4'>Or</p>

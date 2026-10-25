@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { logIn, signUp } from '../api/auth.api';
+import {
+    logIn,
+    requestPasswordReset as requestPasswordResetApi,
+    resetPassword as resetPasswordApi,
+    signUp,
+} from '../api/auth.api';
 import { getUser } from '../api/user.api';
 
 const TOKEN_KEY = 'token';
@@ -77,5 +82,24 @@ export const useAuthStore = create((set, get) => ({
     logout: () => {
         get().setToken(null);
         set({ user: null });
+    },
+
+    // Both resolve to { message } on success or { error } with a message to show.
+    requestPasswordReset: async (email) => {
+        try {
+            const response = await requestPasswordResetApi(email);
+            return { message: response.data?.message };
+        } catch (err) {
+            return { error: errorMessage(err, 'Could not send the reset email. Please try again.') };
+        }
+    },
+
+    resetPassword: async ({ token, password }) => {
+        try {
+            const response = await resetPasswordApi({ token, password });
+            return { message: response.data?.message };
+        } catch (err) {
+            return { error: errorMessage(err, 'Could not reset the password. Please try again.') };
+        }
     },
 }));

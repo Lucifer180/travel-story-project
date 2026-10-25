@@ -2,7 +2,9 @@ import { ConfigProvider } from 'antd'
 import React from 'react'
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import WaveGridBackground from './components/three/WaveGridBackground'
+import ForgotPassword from './pages/auth/ForgotPassword'
 import Login from './pages/auth/Login'
+import ResetPassword from './pages/auth/ResetPassword'
 import Signup from './pages/auth/SignUp'
 import Home from './pages/dashboard/Home'
 import SharedStory from './pages/shared/SharedStory'
@@ -30,6 +32,8 @@ const App = () => {
             <Route path='/dashboard' exact element={<Home/>}/>
             <Route path='/login' exact element={<Login/>}/>
             <Route path='/signup' exact element={<Signup/>}/>
+            <Route path='/forgot-password' element={<ForgotPassword/>}/>
+            <Route path='/reset-password/:token' element={<ResetPassword/>}/>
             <Route path='/shared/:shareId' element={<SharedStory/>}/>
           </Routes>
         </Router>

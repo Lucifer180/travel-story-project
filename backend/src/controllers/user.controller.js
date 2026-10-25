@@ -4,7 +4,10 @@ const User = require("../models/user.model");
 // GET /get-user
 async function getUser(req, res) {
     const { userId } = req.user;
-    const isUser = await User.findOne({ _id: userId });
+    // never send password or reset-token hashes to the client
+    const isUser = await User.findOne({ _id: userId }).select(
+        "-password -resetPasswordTokenHash -resetPasswordExpires -resetPasswordRequestedAt",
+    );
     if (!isUser) return res.sendStatus(401);
 
     return res.json({ user: isUser, message: "" });

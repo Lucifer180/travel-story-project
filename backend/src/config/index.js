@@ -25,6 +25,20 @@ const config = {
         return process.env.BASE_URL || `http://localhost:${this.port}`;
     },
 
+    // Where links in emails point (the React app)
+    frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
+
+    // Outgoing mail (same variable names as the Ecommerce project)
+    smtp: {
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+        from: process.env.SMTP_FROM || process.env.SMTP_EMAIL,
+    },
+
+    passwordResetTtlMinutes: 30,
+
     ai: {
         apiKey: process.env.GROQ_API_KEY,
         baseURL: "https://api.groq.com/openai/v1",

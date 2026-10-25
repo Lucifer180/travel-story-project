@@ -5,3 +5,9 @@ export const signUp = ({ fullName, email, password }) =>
 
 export const logIn = ({ email, password }) =>
     axiosInstance.post("/login", { email, password });
+
+export const requestPasswordReset = (email) =>
+    axiosInstance.post("/forgot-password", { email });
+
+export const resetPassword = ({ token, password }) =>
+    axiosInstance.post("/reset-password", { token, password });
