@@ -1,26 +1,28 @@
 import React, { useState } from 'react';
-import { IoMdClose, IoMdShare } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 import { MdDeleteOutline, MdLinkOff, MdUpdate } from "react-icons/md";
 import { toast } from 'react-toastify';
 import { shareStory, unshareStory } from '../../api/stories.api';
 import { useStoryStore } from '../../store/useStoryStore';
 import DownloadBookButton from '../book/export/DownloadBookButton';
+import ShareBookMenu from '../book/export/ShareBookMenu';
 import StoryBook from '../book/StoryBook';
 const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
   const [shareId,setShareId]=useState(storyInfo?.shareId||null);
   const savePhotos=useStoryStore((s)=>s.savePhotos);
 
-  const handleShare=async()=>{
+  const shareUrl=shareId?`${window.location.origin}/shared/${shareId}`:null;
+
+  // Creates the public link the first time someone shares the story.
+  const ensureShareUrl=async()=>{
+    if(shareUrl) return shareUrl;
     try {
       const response=await shareStory(storyInfo._id);
-      if(response.data&&response.data.shareId){
-        setShareId(response.data.shareId);
-        const link=`${window.location.origin}/shared/${response.data.shareId}`;
-        await navigator.clipboard.writeText(link);
-        toast.success("Share link copied to clipboard");
-      }
+      setShareId(response.data.shareId);
+      return `${window.location.origin}/shared/${response.data.shareId}`;
     } catch (error) {
       toast.error("Failed to create share link");
+      throw error;
     }
   };
   const handleUnshare=async()=>{
@@ -38,14 +40,13 @@ const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
          <div className="flex items-center gap-3 bg-cyan-50/50 p-2 rounded-l-lg">
                       <DownloadBookButton
                         story={storyInfo}
-                        shareUrl={shareId?`${window.location.origin}/shared/${shareId}`:null}
+                        shareUrl={shareUrl}
                       />
-                      <button className="btn-small" onClick={handleShare} title="Copy a public link to this story">
-                      <IoMdShare
-                      className='text-lg'
+                      <ShareBookMenu
+                        story={storyInfo}
+                        shareUrl={shareUrl}
+                        ensureShareUrl={ensureShareUrl}
                       />
-                      {shareId?"COPY LINK":"SHARE"}
-                      </button>
                       {shareId&&(
                       <button className="btn-small btn-delete" onClick={handleUnshare} title="Disable the public link">
                       <MdLinkOff
@@ -75,7 +76,7 @@ const ViewTravelStory = ({storyInfo,onClose,onEditClick,onDeleteClick}) => {
           {storyInfo&&(
             <StoryBook
               story={storyInfo}
-              shareUrl={shareId?`${window.location.origin}/shared/${shareId}`:null}
+              shareUrl={shareUrl}
               onAddDriveLink={onEditClick}
               onSavePhotos={savePhotos}
             />
